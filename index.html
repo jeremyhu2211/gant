@@ -1,0 +1,1534 @@
+[index.html.html](https://github.com/user-attachments/files/27753171/index.html.html)
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GanttPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────────────────────── */
+:root {
+  --f-ui:   'Plus Jakarta Sans', system-ui, sans-serif;
+  --f-mono: 'DM Mono', 'Fira Mono', monospace;
+
+  --bg:        #F5F3EF;
+  --surface:   #FFFFFF;
+  --surface2:  #FAFAF8;
+  --surface3:  #F2F0EB;
+  --hover:     #EDEBE6;
+  --active:    #E5E2DB;
+
+  --bd:        rgba(0,0,0,.08);
+  --bd-mid:    rgba(0,0,0,.12);
+  --bd-strong: rgba(0,0,0,.18);
+
+  --t1: #18160F;
+  --t2: #58534A;
+  --t3: #9C9287;
+  --t4: #C0B8AC;
+
+  --blue:   #1C63D4;
+  --blue-s: #EAF1FC;
+  --red:    #CC2D20;
+  --red-s:  #FEF1F0;
+  --green:  #1A7A40;
+  --green-s:#E9F7EE;
+  --amber:  #8A5800;
+  --amber-s:#FEF6E4;
+  --purple: #5B3FBB;
+  --purple-s:#EEE9FA;
+
+  --today:  #CC2D20;
+
+  --sh-sm: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.06);
+  --sh-md: 0 4px 8px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+  --sh-lg: 0 12px 32px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+
+  --r2: 3px; --r3: 5px; --r4: 7px; --r5: 10px; --r6: 14px;
+
+  /* Layout constants */
+  --sidebar-w: 300px;   /* left label column */
+  --row-h:      48px;
+  --child-h:    40px;
+  --nav-h:      52px;
+  --tool-h:     40px;
+  --status-h:   26px;
+  --col-px:     15;     /* pixels per day */
+}
+[data-theme="dark"] {
+  --bg:        #0F0E0C;
+  --surface:   #171613;
+  --surface2:  #1C1B18;
+  --surface3:  #22201C;
+  --hover:     #252320;
+  --active:    #2C2A26;
+  --bd:        rgba(255,255,255,.06);
+  --bd-mid:    rgba(255,255,255,.10);
+  --bd-strong: rgba(255,255,255,.16);
+  --t1: #F0EDE6;
+  --t2: #8A857C;
+  --t3: #5A5650;
+  --t4: #3A3830;
+  --blue:   #4E8EF5;
+  --blue-s: #162038;
+  --red:    #F0564C;
+  --red-s:  #2C1210;
+  --green:  #40C070;
+  --green-s:#0A2016;
+  --amber:  #D4A030;
+  --amber-s:#281E08;
+  --purple: #8B72E8;
+  --purple-s:#1E1640;
+  --today:  #F0564C;
+  --sh-sm: 0 1px 3px rgba(0,0,0,.4);
+  --sh-md: 0 4px 12px rgba(0,0,0,.5);
+  --sh-lg: 0 12px 32px rgba(0,0,0,.7);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RESET
+───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--f-ui);
+  background: var(--bg);
+  color: var(--t1);
+  font-size: 13px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   APP SHELL
+───────────────────────────────────────────────────────────── */
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* NAV */
+.nav {
+  height: var(--nav-h); flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--bd-mid);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 10px;
+  z-index: 60;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.03em; flex-shrink: 0;
+}
+.brand-icon {
+  width: 26px; height: 26px; border-radius: var(--r3);
+  background: var(--blue);
+  display: grid; place-items: center;
+}
+.brand-icon svg { width: 14px; height: 14px; fill: #fff; }
+.nav-sep { width: 1px; height: 18px; background: var(--bd-mid); flex-shrink: 0; }
+.nav-title {
+  font-family: var(--f-ui); font-size: 13px; font-weight: 600;
+  color: var(--t1); background: transparent; border: none; outline: none;
+  border-radius: var(--r3); padding: 4px 7px; cursor: text;
+  transition: background .15s; min-width: 0; flex: 1; max-width: 280px;
+}
+.nav-title:hover { background: var(--hover); }
+.nav-title:focus { background: var(--hover); }
+.nav-gap { flex: 1; }
+.nav-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+/* Buttons */
+.btn {
+  font-family: var(--f-ui); font-size: 12px; font-weight: 600;
+  padding: 5px 12px; border-radius: var(--r4);
+  border: 1px solid var(--bd-mid); background: var(--surface);
+  color: var(--t2); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+  transition: all .12s; white-space: nowrap; flex-shrink: 0;
+}
+.btn:hover { background: var(--hover); border-color: var(--bd-strong); color: var(--t1); }
+.btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn.primary:hover { opacity: .88; }
+.btn.ghost { border-color: transparent; }
+.btn.ghost:hover { background: var(--hover); border-color: var(--bd); }
+.btn.sm { font-size: 11px; padding: 4px 9px; }
+.btn.icon { width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: var(--r4); font-size: 14px; }
+
+/* TOOLBAR */
+.toolbar {
+  height: var(--tool-h); flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--bd);
+  display: flex; align-items: center;
+  padding: 0 12px; gap: 4px;
+}
+.tool-sep { width: 1px; height: 16px; background: var(--bd-mid); margin: 0 4px; }
+.tool-group { display: flex; gap: 2px; align-items: center; }
+.tl-label { font-size: 11px; color: var(--t3); font-weight: 500; margin: 0 4px; }
+
+/* Status filter chips */
+.chip {
+  font-family: var(--f-ui); font-size: 11px; font-weight: 500;
+  padding: 3px 9px; border-radius: 20px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--t2); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: all .1s;
+}
+.chip:hover { background: var(--hover); }
+.chip.on { background: var(--surface3); border-color: var(--bd-mid); color: var(--t1); }
+.chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   GANTT OUTER LAYOUT
+   Two-pane: sticky left sidebar + scrollable timeline
+───────────────────────────────────────────────────────────── */
+.gantt-outer {
+  flex: 1; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+}
+
+/* Horizontal scroll container — only the timeline part scrolls */
+.gantt-scroll {
+  flex: 1; overflow: auto;
+  display: flex; flex-direction: column;
+}
+.gantt-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.gantt-scroll::-webkit-scrollbar-track { background: transparent; }
+.gantt-scroll::-webkit-scrollbar-thumb { background: var(--bd-mid); border-radius: 4px; }
+
+/* Inner wide row: [label cell] + [track] */
+/* We use a table-like approach:
+   - Everything is a flex row
+   - Label cell is position:sticky left:0
+   - Timeline cell grows freely
+*/
+
+/* ─────────────────────────────────────────────────────────────
+   HEADER ROW
+───────────────────────────────────────────────────────────── */
+.gh-row {
+  display: flex;
+  position: sticky; top: 0; z-index: 40;
+  background: var(--surface);
+  border-bottom: 2px solid var(--bd-mid);
+  flex-shrink: 0;
+}
+/* Header label cell */
+.gh-label {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  max-width: var(--sidebar-w);
+  flex-shrink: 0;
+  display: flex; align-items: flex-end;
+  padding: 0 16px 7px;
+  border-right: 1px solid var(--bd-mid);
+  font-size: 10px; font-weight: 700;
+  color: var(--t3); letter-spacing: .1em; text-transform: uppercase;
+  background: var(--surface);
+  position: sticky; left: 0; z-index: 42;
+}
+/* Header timeline */
+.gh-timeline { flex-shrink: 0; position: relative; }
+.month-row { display: flex; border-bottom: 1px solid var(--bd); }
+.month-cell {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500;
+  color: var(--t2); padding: 6px 8px 5px;
+  border-right: 1px solid var(--bd); flex-shrink: 0;
+  letter-spacing: .04em;
+}
+.day-row { display: flex; }
+.day-cell {
+  font-family: var(--f-mono); font-size: 9px; color: var(--t4);
+  text-align: center; flex-shrink: 0;
+  height: 20px; line-height: 20px;
+  border-right: 1px solid transparent;
+  position: relative;
+}
+.day-cell.ws { border-right-color: var(--bd); }
+.day-cell.today-col { color: var(--today); font-weight: 700; }
+.day-cell.today-col::after {
+  content: ''; position: absolute; bottom: 1px; left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 3px; border-radius: 50%; background: var(--today);
+}
+.day-cell.wknd { opacity: .45; }
+
+/* ─────────────────────────────────────────────────────────────
+   DATA ROWS
+───────────────────────────────────────────────────────────── */
+.gr-row {
+  display: flex; align-items: stretch;
+  border-bottom: 1px solid var(--bd);
+  position: relative;
+}
+.gr-row.parent-row {
+  height: var(--row-h);
+  background: var(--surface);
+  transition: background .1s;
+}
+.gr-row.parent-row:hover { background: var(--surface2); }
+.gr-row.child-row {
+  height: var(--child-h);
+  background: var(--surface2);
+  transition: background .1s;
+}
+.gr-row.child-row:hover { background: var(--hover); }
+
+/* Collapse animation */
+.children-wrap {
+  overflow: hidden;
+  transition: max-height .25s cubic-bezier(.4,0,.2,1), opacity .2s ease;
+  max-height: 4000px; opacity: 1;
+}
+.children-wrap.closed { max-height: 0 !important; opacity: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   LEFT LABEL CELL  ← THE FIX IS HERE
+   
+   Key rules:
+   1. Exactly sidebar-w wide, never shrink
+   2. position:sticky left:0 so it stays visible on h-scroll
+   3. Inner layout: flex row with defined widths for each part
+   4. Name/dept text area gets all leftover space (flex:1 + min-width:0)
+   5. Action buttons hidden by default, shown on row hover only
+───────────────────────────────────────────────────────────── */
+.label-cell {
+  /* Exact fixed width — never shrink or grow */
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  max-width: var(--sidebar-w);
+  flex-shrink: 0;
+
+  /* Stick to left edge while timeline scrolls */
+  position: sticky; left: 0; z-index: 20;
+
+  /* Border */
+  border-right: 1px solid var(--bd-mid);
+
+  /* Inner layout */
+  display: flex; align-items: center;
+  padding: 0 10px 0 10px;
+  gap: 0;
+
+  /* Background must match row so sticky looks seamless */
+  background: inherit;
+}
+.parent-row .label-cell { background: var(--surface); }
+.parent-row:hover .label-cell { background: var(--surface2); }
+.child-row .label-cell { background: var(--surface2); padding-left: 36px; }
+.child-row:hover .label-cell { background: var(--hover); }
+
+/* ── Toggle button (parent only) ── */
+.tog {
+  width: 20px; height: 20px;
+  flex-shrink: 0; flex-grow: 0;
+  border: none; background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--t3); border-radius: var(--r2);
+  font-size: 9px; margin-right: 4px;
+  transition: background .1s, color .1s;
+}
+.tog:hover { background: var(--active); color: var(--t1); }
+.tog-icon { display: inline-block; transition: transform .2s cubic-bezier(.4,0,.2,1); }
+.tog.open .tog-icon { transform: rotate(90deg); }
+
+/* ── Color bar (parent) / dot (child) ── */
+.color-bar {
+  width: 3px; height: 26px; border-radius: 2px;
+  flex-shrink: 0; margin-right: 8px;
+}
+.color-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-right: 6px;
+}
+
+/* ── Text block — this must be flex:1 min-width:0 to prevent overflow ── */
+.label-text {
+  flex: 1;
+  min-width: 0;          /* ← critical: allows text to shrink and clip */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;      /* ← clips children */
+}
+.row-name {
+  font-size: 13px; font-weight: 600; color: var(--t1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 2px 4px; border-radius: var(--r2);
+  cursor: text; line-height: 1.35;
+  display: block;        /* ← must be block/flex, not inline */
+  width: 100%;
+}
+.row-dept {
+  font-size: 11px; color: var(--t3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 1px 4px;
+  display: block; width: 100%;
+}
+.row-name:hover { background: rgba(0,0,0,.05); }
+.row-dept:hover { background: rgba(0,0,0,.04); }
+[data-theme="dark"] .row-name:hover,
+[data-theme="dark"] .row-dept:hover { background: rgba(255,255,255,.05); }
+.child-name {
+  font-size: 12px; font-weight: 500; color: var(--t2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 2px 4px; border-radius: var(--r2);
+  cursor: text; display: block; width: 100%;
+}
+.child-name:hover { background: rgba(0,0,0,.05); }
+[data-theme="dark"] .child-name:hover { background: rgba(255,255,255,.05); }
+
+/* ── Status badge ── */
+.sbadge {
+  flex-shrink: 0;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 500;
+  padding: 2px 6px; border-radius: 20px;
+  white-space: nowrap; margin-left: 6px;
+  /* Only show if space available — it will flex-shrink to 0 if needed */
+}
+.sb-planned { background: var(--surface3); color: var(--t3); }
+.sb-active  { background: var(--green-s);  color: var(--green); }
+.sb-review  { background: var(--amber-s);  color: var(--amber); }
+.sb-done    { background: var(--blue-s);   color: var(--blue); }
+.sb-blocked { background: var(--red-s);    color: var(--red); }
+
+/* ── Row action buttons — hidden until hover ── */
+.row-acts {
+  display: flex; align-items: center; gap: 2px;
+  flex-shrink: 0; margin-left: 4px;
+  opacity: 0; transition: opacity .15s;
+  /* Fixed width so they don't cause layout shift on appear */
+  width: 0; overflow: hidden;
+}
+.gr-row:hover .row-acts {
+  opacity: 1;
+  width: auto; overflow: visible;
+}
+.ra {
+  font-family: var(--f-ui); font-size: 10px; font-weight: 600;
+  background: none; border: none; cursor: pointer;
+  color: var(--t3); padding: 3px 5px; border-radius: var(--r2);
+  line-height: 1; white-space: nowrap; flex-shrink: 0;
+  transition: all .1s;
+}
+.ra:hover { background: var(--active); color: var(--t1); }
+.ra.danger:hover { background: var(--red-s); color: var(--red); }
+
+/* Child tree lines */
+.child-row .label-cell::before {
+  content: '';
+  position: absolute;
+  left: 22px; top: 0; bottom: 50%;
+  width: 1px; background: var(--bd-mid);
+}
+.child-row .label-cell::after {
+  content: '';
+  position: absolute;
+  left: 22px; top: 50%;
+  width: 12px; height: 1px; background: var(--bd-mid);
+}
+
+/* Color picker popup */
+.cpop {
+  display: none; position: absolute;
+  left: calc(var(--sidebar-w) + 4px); top: 50%; transform: translateY(-50%);
+  z-index: 200;
+  background: var(--surface); border: 1px solid var(--bd-strong);
+  border-radius: var(--r5); padding: 10px;
+  gap: 6px; flex-wrap: wrap; width: 196px;
+  box-shadow: var(--sh-lg);
+}
+.cpop-ttl { width: 100%; font-size: 10px; font-weight: 700; color: var(--t3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+.cdot {
+  width: 22px; height: 22px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent;
+  flex-shrink: 0;
+  transition: transform .12s, border-color .12s;
+}
+.cdot:hover { transform: scale(1.18); }
+.cdot.sel { border-color: var(--t1); }
+
+/* Inline edit input */
+.ie {
+  font-family: var(--f-ui); font-size: 13px; font-weight: 600;
+  background: var(--surface); color: var(--t1);
+  border: 1.5px solid var(--blue); border-radius: var(--r3);
+  padding: 2px 6px; outline: none; width: 100%;
+}
+.ie.sm { font-size: 12px; font-weight: 400; }
+
+/* ─────────────────────────────────────────────────────────────
+   TRACK  (right side — the timeline canvas)
+───────────────────────────────────────────────────────────── */
+.track {
+  flex-shrink: 0;
+  position: relative; overflow: visible;
+}
+.parent-row .track { height: var(--row-h); }
+.child-row  .track { height: var(--child-h); }
+
+/* Grid decorations */
+.gline {
+  position: absolute; top: 0; bottom: 0;
+  width: 1px; background: var(--bd); pointer-events: none; z-index: 0;
+}
+.wkend-stripe {
+  position: absolute; top: 0; bottom: 0;
+  background: rgba(0,0,0,.025); pointer-events: none; z-index: 0;
+}
+[data-theme="dark"] .wkend-stripe { background: rgba(255,255,255,.025); }
+.today-vline {
+  position: absolute; top: 0; bottom: 0;
+  width: 2px; background: var(--today); opacity: .6;
+  z-index: 6; pointer-events: none;
+}
+
+/* Phase bar */
+.pbar {
+  position: absolute; border-radius: var(--r3);
+  display: flex; align-items: center;
+  font-size: 10px; font-weight: 600; letter-spacing: .01em;
+  white-space: nowrap; overflow: hidden;
+  cursor: grab; z-index: 3;
+  transition: box-shadow .12s, opacity .1s;
+}
+.pbar:active { cursor: grabbing; }
+.pbar.dragging { box-shadow: var(--sh-lg); opacity: .88; z-index: 60; }
+.pbar-fill { /* progress overlay */
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: rgba(0,0,0,.15); pointer-events: none;
+  border-radius: var(--r3) 0 0 var(--r3);
+}
+.pbar-lbl {
+  padding: 0 8px 0 10px; flex: 1; overflow: hidden;
+  text-overflow: ellipsis; pointer-events: none;
+  position: relative; z-index: 1;
+}
+.rh { /* resize handle */
+  width: 8px; height: 100%; flex-shrink: 0;
+  cursor: ew-resize;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s; z-index: 2;
+}
+.rh::before {
+  content: ''; display: block;
+  width: 2px; height: 10px;
+  background: rgba(255,255,255,.7); border-radius: 2px;
+}
+.pbar:hover .rh { opacity: 1; }
+
+/* Summary bar (parent span indicator) */
+.sum-bar {
+  position: absolute; height: 3px; border-radius: 2px;
+  bottom: 7px; opacity: .25; pointer-events: none; z-index: 1;
+}
+
+/* Today pill on header */
+.today-pill-hdr {
+  position: absolute; top: 0;
+  background: var(--today); color: #fff;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 500;
+  padding: 2px 5px; border-radius: 3px;
+  transform: translateX(-50%); pointer-events: none; z-index: 8;
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOOLTIPS
+───────────────────────────────────────────────────────────── */
+.dtip {
+  position: fixed; z-index: 900;
+  background: var(--t1); color: var(--surface);
+  font-family: var(--f-mono); font-size: 11px;
+  padding: 5px 10px; border-radius: var(--r4);
+  pointer-events: none; display: none; white-space: nowrap;
+  box-shadow: var(--sh-md);
+}
+.hcard {
+  position: fixed; z-index: 899;
+  background: var(--surface); color: var(--t1);
+  border: 1px solid var(--bd-mid);
+  border-radius: var(--r5); padding: 12px 14px;
+  pointer-events: none; display: none;
+  min-width: 200px; max-width: 250px;
+  box-shadow: var(--sh-lg); line-height: 1;
+}
+.hc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.hc-ic  { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.hc-nm  { font-size: 13px; font-weight: 700; color: var(--t1); flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.hc-r   { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-top: 1px solid var(--bd); }
+.hc-k   { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.hc-v   { font-family: var(--f-mono); font-size: 11px; color: var(--t1); text-align: right; }
+.hc-pg  { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--bd); }
+.hc-pg-bar { height: 4px; background: var(--surface3); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+.hc-pg-fill { height: 100%; border-radius: 2px; }
+
+/* ─────────────────────────────────────────────────────────────
+   STATUS BAR
+───────────────────────────────────────────────────────────── */
+.statusbar {
+  height: var(--status-h); flex-shrink: 0;
+  background: var(--surface); border-top: 1px solid var(--bd);
+  display: flex; align-items: center; padding: 0 16px; gap: 16px;
+  font-size: 11px; color: var(--t3);
+}
+.sb-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+
+/* ─────────────────────────────────────────────────────────────
+   MODAL
+───────────────────────────────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.3);
+  z-index: 800; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface); border: 1px solid var(--bd-mid);
+  border-radius: var(--r6); padding: 24px; width: 370px;
+  box-shadow: var(--sh-lg);
+  transform: translateY(8px) scale(.98); transition: transform .18s;
+}
+.modal-bg.open .modal { transform: none; }
+.modal-ttl { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 18px; }
+.mf { margin-bottom: 14px; }
+.mf-l { font-size: 10px; font-weight: 700; color: var(--t3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+.mi {
+  width: 100%; padding: 8px 10px;
+  border: 1px solid var(--bd-mid); border-radius: var(--r4);
+  background: var(--bg); color: var(--t1);
+  font-family: var(--f-ui); font-size: 13px; outline: none;
+  transition: border-color .15s;
+}
+.mi:focus { border-color: var(--blue); }
+.msel {
+  width: 100%; padding: 7px 10px;
+  border: 1px solid var(--bd-mid); border-radius: var(--r4);
+  background: var(--bg); color: var(--t1);
+  font-family: var(--f-ui); font-size: 13px; outline: none; cursor: pointer;
+}
+.m-pal { display: flex; gap: 6px; flex-wrap: wrap; }
+.m-act { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* ─────────────────────────────────────────────────────────────
+   CONTEXT MENU
+───────────────────────────────────────────────────────────── */
+.ctx {
+  position: fixed; z-index: 700;
+  background: var(--surface); border: 1px solid var(--bd-mid);
+  border-radius: var(--r5); padding: 5px;
+  min-width: 166px; box-shadow: var(--sh-lg);
+  display: none;
+}
+.ctx.open { display: block; }
+.ci {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: var(--r3);
+  font-size: 12px; font-weight: 500; color: var(--t1);
+  cursor: pointer; transition: background .1s;
+}
+.ci:hover { background: var(--hover); }
+.ci.danger { color: var(--red); }
+.ci.danger:hover { background: var(--red-s); }
+.ctx-sep { height: 1px; background: var(--bd); margin: 3px 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   SHORTCUTS HUD
+───────────────────────────────────────────────────────────── */
+.shud {
+  position: fixed; bottom: 36px; right: 18px;
+  background: var(--surface); border: 1px solid var(--bd-mid);
+  border-radius: var(--r5); padding: 12px 14px;
+  font-size: 11px; color: var(--t2);
+  box-shadow: var(--sh-md); z-index: 100;
+  opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.shud.show { opacity: 1; pointer-events: all; }
+.sh-ttl { font-size: 11px; font-weight: 700; color: var(--t1); margin-bottom: 8px; }
+.sh-r { display: flex; align-items: center; gap: 10px; padding: 3px 0; }
+.sk { font-family: var(--f-mono); font-size: 10px; background: var(--surface3); border: 1px solid var(--bd-mid); border-radius: 3px; padding: 1px 6px; color: var(--t1); min-width: 30px; text-align: center; }
+
+/* ─────────────────────────────────────────────────────────────
+   EMPTY STATE
+───────────────────────────────────────────────────────────── */
+.empty {
+  display: flex; align-items: center; justify-content: center;
+  height: 80px; color: var(--t3); font-size: 13px;
+  border-bottom: 1px solid var(--bd);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PRINT STYLES
+───────────────────────────────────────────────────────────── */
+@media print {
+  .nav, .toolbar, .statusbar, .row-acts { display: none !important; }
+  .gantt-scroll { overflow: visible !important; }
+  body, html { overflow: visible !important; height: auto !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 14 14"><rect x="0" y="0" width="5" height="5" rx="1"/><rect x="0" y="7" width="8" height="5" rx="1"/><rect x="7" y="0" width="7" height="9" rx="1"/></svg>
+      </div>
+      GanttPro
+    </div>
+    <div class="nav-sep"></div>
+    <input class="nav-title" id="navTitle" value="2025 年度專案規劃" />
+    <div class="nav-gap"></div>
+    <div class="nav-actions">
+      <button class="btn sm" id="exportBtn">⬇ 匯出</button>
+      <button class="btn sm" id="shareBtn">↗ 分享連結</button>
+      <button class="btn icon ghost" id="themeBtn" title="切換深色模式">☀</button>
+      <button class="btn icon ghost" id="shortcutBtn" title="快捷鍵 (?)">⌨</button>
+    </div>
+  </nav>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <button class="btn primary sm" id="addProjBtn">＋ 新增專案</button>
+    <div class="tool-sep"></div>
+    <button class="btn ghost sm" id="expandAllBtn">⊞ 全部展開</button>
+    <button class="btn ghost sm" id="collapseAllBtn">⊟ 全部收合</button>
+    <div class="tool-sep"></div>
+    <span class="tl-label">狀態：</span>
+    <div class="tool-group" id="filterGroup">
+      <button class="chip on" data-f="all">全部</button>
+      <button class="chip" data-f="active"><span class="chip-dot" style="background:var(--green)"></span>進行中</button>
+      <button class="chip" data-f="planned"><span class="chip-dot" style="background:var(--t3)"></span>規劃中</button>
+      <button class="chip" data-f="done"><span class="chip-dot" style="background:var(--blue)"></span>已完成</button>
+      <button class="chip" data-f="blocked"><span class="chip-dot" style="background:var(--red)"></span>已阻塞</button>
+    </div>
+    <div class="tool-sep"></div>
+    <button class="btn ghost sm" id="todayBtn">⊙ 跳至今天</button>
+  </div>
+
+  <!-- GANTT -->
+  <div class="gantt-outer">
+    <div class="gantt-scroll" id="ganttScroll">
+      <div id="ganttInner"></div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <span id="sb1"></span>
+    <span id="sb2"></span>
+    <span id="sb3"></span>
+    <span style="margin-left:auto;font-family:var(--f-mono);font-size:10px" id="sb4"></span>
+  </div>
+</div>
+
+<!-- TOOLTIPS -->
+<div class="dtip" id="dtip"></div>
+<div class="hcard" id="hcard"></div>
+
+<!-- CONTEXT MENU -->
+<div class="ctx" id="ctx">
+  <div class="ci" id="cx-edit">✏ 編輯名稱</div>
+  <div class="ci" id="cx-addph">＋ 新增階段</div>
+  <div class="ci" id="cx-addch">＋ 新增子項目</div>
+  <div class="ci" id="cx-color">● 更換顏色</div>
+  <div class="ctx-sep"></div>
+  <div class="ci" id="cx-status">◈ 循環切換狀態</div>
+  <div class="ctx-sep"></div>
+  <div class="ci danger" id="cx-del">✕ 刪除</div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <div class="modal-ttl">新增專案</div>
+    <div class="mf"><div class="mf-l">專案名稱</div><input class="mi" id="mn" placeholder="輸入名稱…" /></div>
+    <div class="mf"><div class="mf-l">負責部門</div><input class="mi" id="md" placeholder="例：工程團隊" /></div>
+    <div class="mf"><div class="mf-l">狀態</div>
+      <select class="msel" id="ms">
+        <option value="planned">規劃中</option>
+        <option value="active">進行中</option>
+        <option value="review">審核中</option>
+        <option value="done">已完成</option>
+        <option value="blocked">已阻塞</option>
+      </select>
+    </div>
+    <div class="mf"><div class="mf-l">顏色</div><div class="m-pal" id="mpal"></div></div>
+    <div class="m-act">
+      <button class="btn sm" id="mcancel">取消</button>
+      <button class="btn primary sm" id="mok">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHORTCUTS -->
+<div class="shud" id="shud">
+  <div class="sh-ttl">鍵盤快捷鍵</div>
+  <div class="sh-r"><span class="sk">N</span> 新增專案</div>
+  <div class="sh-r"><span class="sk">T</span> 跳至今天</div>
+  <div class="sh-r"><span class="sk">D</span> 深色模式</div>
+  <div class="sh-r"><span class="sk">E</span> 全部展開</div>
+  <div class="sh-r"><span class="sk">C</span> 全部收合</div>
+  <div class="sh-r"><span class="sk">?</span> 此說明</div>
+  <div class="sh-r"><span class="sk">Esc</span> 關閉</div>
+</div>
+
+<script>
+/* ═══════════════════════════ CONSTANTS ══════════════════════════ */
+const CS  = new Date('2025-01-01');  // chart start
+const CE  = new Date('2025-12-31');  // chart end
+const NOW = new Date('2025-05-14');  // today
+const CPX = 15;                       // px per day
+
+const PAL = ['#1C63D4','#0D9668','#7B6AE0','#D45E28','#B27A18',
+             '#9A3065','#0D7858','#5038B0','#BC2A1C','#1888A0',
+             '#7A4810','#2A58BC','#6A9A20','#BC4080'];
+
+const SMAP = {
+  planned:{ lbl:'規劃中', cls:'sb-planned' },
+  active: { lbl:'進行中', cls:'sb-active'  },
+  review: { lbl:'審核中', cls:'sb-review'  },
+  done:   { lbl:'已完成', cls:'sb-done'    },
+  blocked:{ lbl:'已阻塞', cls:'sb-blocked' },
+};
+
+let _id = 9000;
+const uid = () => ++_id;
+
+const dFrom = (a,b)=> Math.round((new Date(b)-new Date(a))/86400000);
+const addD  = (d,n)=>{ const r=new Date(d); r.setDate(r.getDate()+n); return r; };
+const iso   = d => new Date(d).toISOString().slice(0,10);
+const fmt2  = d => new Date(d).toLocaleDateString('zh-TW',{month:'2-digit',day:'2-digit'});
+const fmtFull = d => new Date(d).toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
+
+function contrast(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (.299*r+.587*g+.114*b)>145?'#18160F':'#ffffff';
+}
+
+const TOTAL_DAYS = dFrom(CS, CE)+1;
+const TRACK_W    = TOTAL_DAYS * CPX;
+const TODAY_X    = dFrom(CS, NOW) * CPX;
+
+/* calendar */
+function buildMonths(){
+  const r=[],MN='1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月'.split(',');
+  let cur=new Date(CS);
+  while(cur<=CE){
+    const y=cur.getFullYear(),m=cur.getMonth();
+    const s=new Date(Math.max(+new Date(y,m,1),+CS));
+    const e=new Date(Math.min(+new Date(y,m+1,0),+CE));
+    r.push({lbl:`${y}年 ${MN[m]}`, days:dFrom(s,e)+1});
+    cur=new Date(y,m+1,1);
+  }
+  return r;
+}
+function buildDays(){
+  const r=[]; let d=new Date(CS);
+  while(d<=CE){ r.push(new Date(d)); d.setDate(d.getDate()+1); }
+  return r;
+}
+const MONTHS = buildMonths();
+const DAYS   = buildDays();
+
+/* prebuilt grid decorations */
+function buildGrid(){
+  let s='';
+  DAYS.forEach((d,i)=>{
+    const dow=d.getDay();
+    if(dow===6) s+=`<div class="wkend-stripe" style="left:${i*CPX}px;width:${CPX*2}px"></div>`;
+    if(dow===1) s+=`<div class="gline" style="left:${i*CPX}px"></div>`;
+  });
+  s+=`<div class="today-vline" style="left:${TODAY_X}px"></div>`;
+  return s;
+}
+const GRID = buildGrid();
+
+/* ═══════════════════════════ DATA ══════════════════════════════ */
+let projects = [
+  { id:uid(), name:'品牌重塑專案',  dept:'行銷部門',  color:'#1C63D4', status:'done',    expanded:true,
+    phases:[
+      {id:uid(),name:'一修',   start:'2025-01-06',end:'2025-01-24',color:'#1C63D4',progress:100},
+      {id:uid(),name:'二修',   start:'2025-01-27',end:'2025-02-14',color:'#7B6AE0',progress:100},
+    ],
+    children:[
+      {id:uid(),name:'視覺識別設計',status:'done',phases:[
+        {id:uid(),name:'草稿',start:'2025-01-06',end:'2025-01-17',color:'#1C63D4',progress:100},
+        {id:uid(),name:'定稿',start:'2025-01-20',end:'2025-02-07',color:'#7B6AE0',progress:100},
+      ]},
+      {id:uid(),name:'文宣品製作',status:'done',phases:[
+        {id:uid(),name:'製作',start:'2025-01-27',end:'2025-02-14',color:'#1C63D4',progress:100},
+      ]},
+    ]
+  },
+  { id:uid(), name:'App 2.0 開發',  dept:'工程團隊',  color:'#0D9668', status:'active',   expanded:true,
+    phases:[
+      {id:uid(),name:'需求分析',start:'2025-01-20',end:'2025-02-07',color:'#0D9668',progress:100},
+      {id:uid(),name:'設計稿',  start:'2025-02-10',end:'2025-02-28',color:'#7B6AE0',progress:100},
+      {id:uid(),name:'開發',    start:'2025-03-01',end:'2025-04-18',color:'#0D7858',progress:70},
+      {id:uid(),name:'測試',    start:'2025-04-21',end:'2025-05-16',color:'#B27A18',progress:20},
+    ],
+    children:[
+      {id:uid(),name:'前端開發', status:'active', phases:[
+        {id:uid(),name:'開發',start:'2025-03-01',end:'2025-04-11',color:'#0D9668',progress:80},
+        {id:uid(),name:'測試',start:'2025-04-14',end:'2025-05-09',color:'#B27A18',progress:15},
+      ]},
+      {id:uid(),name:'後端 API',status:'active',phases:[
+        {id:uid(),name:'開發',  start:'2025-03-01',end:'2025-04-04',color:'#0D7858',progress:90},
+        {id:uid(),name:'API文件',start:'2025-04-07',end:'2025-04-18',color:'#1888A0',progress:40},
+      ]},
+      {id:uid(),name:'QA 測試',  status:'planned',phases:[
+        {id:uid(),name:'測試計畫',start:'2025-04-21',end:'2025-05-16',color:'#B27A18',progress:0},
+      ]},
+    ]
+  },
+  { id:uid(), name:'Q2 行銷活動',   dept:'行銷部門',  color:'#D45E28', status:'active',   expanded:false,
+    phases:[
+      {id:uid(),name:'策劃',start:'2025-03-17',end:'2025-03-31',color:'#D45E28',progress:100},
+      {id:uid(),name:'製作',start:'2025-04-01',end:'2025-04-25',color:'#B27A18',progress:60},
+      {id:uid(),name:'上線',start:'2025-04-28',end:'2025-05-16',color:'#0D9668',progress:10},
+    ],
+    children:[
+      {id:uid(),name:'社群媒體',status:'active',phases:[
+        {id:uid(),name:'內容',start:'2025-04-01',end:'2025-04-18',color:'#D45E28',progress:75},
+        {id:uid(),name:'投放',start:'2025-04-21',end:'2025-05-16',color:'#B27A18',progress:20},
+      ]},
+    ]
+  },
+  { id:uid(), name:'資安稽核',       dept:'IT 部門',   color:'#B27A18', status:'active',   expanded:false,
+    phases:[
+      {id:uid(),name:'準備',start:'2025-04-01',end:'2025-04-11',color:'#B27A18',progress:100},
+      {id:uid(),name:'稽核',start:'2025-04-14',end:'2025-04-25',color:'#D45E28',progress:80},
+    ],
+    children:[],
+  },
+  { id:uid(), name:'年中財務報告',   dept:'財務部門',  color:'#9A3065', status:'planned',  expanded:false,
+    phases:[
+      {id:uid(),name:'資料收集',start:'2025-05-12',end:'2025-05-30',color:'#9A3065',progress:0},
+      {id:uid(),name:'撰寫',    start:'2025-06-02',end:'2025-06-20',color:'#5038B0',progress:0},
+      {id:uid(),name:'審核',    start:'2025-06-23',end:'2025-06-30',color:'#7B6AE0',progress:0},
+    ],
+    children:[
+      {id:uid(),name:'財務數據彙整',status:'planned',phases:[
+        {id:uid(),name:'收集',start:'2025-05-12',end:'2025-05-23',color:'#9A3065',progress:0},
+      ]},
+    ]
+  },
+  { id:uid(), name:'人才招募計畫',   dept:'人資部門',  color:'#0D7858', status:'active',   expanded:false,
+    phases:[
+      {id:uid(),name:'崗位規劃',start:'2025-03-01',end:'2025-03-21',color:'#0D7858',progress:100},
+      {id:uid(),name:'面試',    start:'2025-03-24',end:'2025-05-09',color:'#0D9668',progress:50},
+      {id:uid(),name:'錄用',    start:'2025-05-12',end:'2025-05-30',color:'#1888A0',progress:0},
+    ],
+    children:[],
+  },
+  { id:uid(), name:'系統升級 Q3',    dept:'工程團隊',  color:'#5038B0', status:'planned',  expanded:false,
+    phases:[
+      {id:uid(),name:'需求評估',start:'2025-06-01',end:'2025-06-27',color:'#5038B0',progress:0},
+      {id:uid(),name:'開發',    start:'2025-07-01',end:'2025-09-30',color:'#7B6AE0',progress:0},
+      {id:uid(),name:'上線',    start:'2025-10-01',end:'2025-10-31',color:'#1C63D4',progress:0},
+    ],
+    children:[],
+  },
+];
+
+let activeFilter = 'all';
+let activeDrag   = null;
+let ctxTarget    = null;
+
+/* ═══════════════════════════ RENDER ════════════════════════════ */
+function render(){
+  const inner = document.getElementById('ganttInner');
+  const vis   = activeFilter==='all' ? projects : projects.filter(p=>p.status===activeFilter);
+  let h = '';
+
+  /* ── header ── */
+  h += `<div class="gh-row">
+    <div class="gh-label">專案 / 階段</div>
+    <div class="gh-timeline" style="width:${TRACK_W}px">
+      <div class="month-row">`;
+  MONTHS.forEach(m=>{ h+=`<div class="month-cell" style="width:${m.days*CPX}px">${m.lbl}</div>`; });
+  h+=`</div><div class="day-row">`;
+  DAYS.forEach(d=>{
+    const isT=d.toDateString()===NOW.toDateString();
+    const isM=d.getDay()===1, isWk=d.getDay()===0||d.getDay()===6;
+    const lbl=(d.getDate()===1||isM)?d.getDate():'';
+    h+=`<div class="day-cell${isM?' ws':''}${isT?' today-col':''}${isWk?' wknd':''}" style="width:${CPX}px">${lbl}</div>`;
+  });
+  h+=`</div>
+    <div class="today-vline" style="left:${TODAY_X}px">
+      <div class="today-pill-hdr">${fmt2(NOW)}</div>
+    </div>
+  </div></div>`;
+
+  /* ── body ── */
+  if(!vis.length) h+=`<div class="empty">沒有符合條件的專案</div>`;
+
+  vis.forEach(proj=>{
+    const pi = projects.indexOf(proj);
+    h += renderParent(proj, pi);
+    h += `<div class="children-wrap${proj.expanded?'':' closed'}" id="cw${proj.id}">`;
+    proj.children.forEach((ch,ci)=>{ h+=renderChild(ch,pi,ci,proj); });
+    h += `</div>`;
+  });
+
+  inner.innerHTML = h;
+  bindAll();
+  updateSB();
+}
+
+/* ── parent row ── */
+function renderParent(proj, pi){
+  const st  = SMAP[proj.status]||SMAP.planned;
+  const phs = proj.phases;
+  /* summary bar */
+  let sbar='';
+  if(phs.length){
+    const minS=new Date(Math.min(...phs.map(p=>+new Date(p.start))));
+    const maxE=new Date(Math.max(...phs.map(p=>+new Date(p.end))));
+    sbar=`<div class="sum-bar" style="left:${dFrom(CS,minS)*CPX}px;width:${(dFrom(minS,maxE)+1)*CPX}px;background:${proj.color}"></div>`;
+  }
+  return `
+  <div class="proj-group">
+  <div class="gr-row parent-row" data-pi="${pi}" data-id="${proj.id}">
+    <div class="label-cell">
+      <button class="tog${proj.expanded?' open':''}" data-pi="${pi}" data-id="${proj.id}">
+        <span class="tog-icon">▶</span>
+      </button>
+      <div class="color-bar" style="background:${proj.color}"></div>
+      <div class="label-text">
+        <span class="row-name editable" data-f="name" data-pi="${pi}">${escH(proj.name)}</span>
+        <span class="row-dept editable" data-f="dept" data-pi="${pi}">${escH(proj.dept)}</span>
+      </div>
+      <span class="sbadge ${st.cls}">${st.lbl}</span>
+      <div class="row-acts">
+        <button class="ra addph" data-pi="${pi}" title="新增階段">＋階段</button>
+        <button class="ra addch" data-pi="${pi}" title="新增子項目">＋子項</button>
+        <button class="ra colorbtn" data-pi="${pi}" title="顏色">●</button>
+        <button class="ra danger delpj" data-pi="${pi}" title="刪除">✕</button>
+      </div>
+      <div class="cpop" id="cp${proj.id}" style="">
+        <div class="cpop-ttl">顏色</div>
+        ${PAL.map(c=>`<div class="cdot${proj.color===c?' sel':''}" style="background:${c}" data-color="${c}" data-pi="${pi}"></div>`).join('')}
+      </div>
+    </div>
+    <div class="track" style="width:${TRACK_W}px" data-pi="${pi}">
+      ${GRID}${sbar}
+      ${phs.map((ph,phi)=>barHTML(ph,pi,'',phi,true)).join('')}
+    </div>
+  </div>`;
+}
+
+/* ── child row ── */
+function renderChild(ch, pi, ci, proj){
+  const st = SMAP[ch.status]||SMAP.planned;
+  return `
+  <div class="gr-row child-row" data-pi="${pi}" data-ci="${ci}" data-id="${ch.id}">
+    <div class="label-cell">
+      <div class="color-dot" style="background:${proj.color}"></div>
+      <div class="label-text">
+        <span class="child-name ech" data-pi="${pi}" data-ci="${ci}">${escH(ch.name)}</span>
+      </div>
+      <span class="sbadge ${st.cls}" style="font-size:8px;padding:1px 5px">${st.lbl}</span>
+      <div class="row-acts">
+        <button class="ra addchph" data-pi="${pi}" data-ci="${ci}" title="新增階段">＋</button>
+        <button class="ra danger delch" data-pi="${pi}" data-ci="${ci}" title="刪除">✕</button>
+      </div>
+    </div>
+    <div class="track" style="width:${TRACK_W}px" data-pi="${pi}" data-ci="${ci}">
+      ${GRID}
+      ${ch.phases.map((ph,phi)=>barHTML(ph,pi,ci,phi,false)).join('')}
+    </div>
+  </div>`;
+}
+
+/* ── bar HTML ── */
+function barHTML(ph, pi, ci, phi, isParent){
+  const lx  = dFrom(CS, ph.start)*CPX;
+  const bw  = (dFrom(ph.start,ph.end)+1)*CPX;
+  const h   = isParent ? 24 : 18;
+  const top = isParent ? 12 : 11;
+  const txt = contrast(ph.color);
+  const pg  = ph.progress||0;
+  return `<div class="pbar" data-pi="${pi}" data-ci="${ci}" data-phi="${phi}"
+    style="left:${lx}px;width:${bw}px;height:${h}px;top:${top}px;color:${txt}">
+    <div style="background:${ph.color};position:absolute;inset:0;border-radius:var(--r3)">
+      <div class="pbar-fill" style="width:${pg}%;border-radius:var(--r3) 0 0 var(--r3)"></div>
+    </div>
+    <div class="rh" data-act="rl" data-pi="${pi}" data-ci="${ci}" data-phi="${phi}"></div>
+    <div class="pbar-lbl">${bw>46?escH(ph.name):''}</div>
+    <div class="rh" data-act="rr" data-pi="${pi}" data-ci="${ci}" data-phi="${phi}"></div>
+  </div>`;
+}
+
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ─────────────────────────────────────────────────────────────
+   STATUS BAR
+───────────────────────────────────────────────────────────── */
+function updateSB(){
+  document.getElementById('sb1').innerHTML=`<span class="sb-dot" style="background:var(--blue)"></span>${projects.length} 個專案`;
+  document.getElementById('sb2').innerHTML=`<span class="sb-dot" style="background:var(--green)"></span>${projects.filter(p=>p.status==='active').length} 進行中`;
+  document.getElementById('sb3').innerHTML=`<span class="sb-dot" style="background:var(--blue)"></span>${projects.filter(p=>p.status==='done').length} 已完成`;
+  document.getElementById('sb4').textContent=`今天：${fmtFull(NOW)}`;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DATA ACCESS
+───────────────────────────────────────────────────────────── */
+function getPh(pi,ci,phi){
+  return ci==='' ? projects[pi].phases[+phi] : projects[pi].children[+ci].phases[+phi];
+}
+function setPh(pi,ci,phi,upd){ Object.assign(getPh(pi,ci,phi),upd); }
+
+/* ─────────────────────────────────────────────────────────────
+   LIVE BAR UPDATE (no full re-render during drag)
+───────────────────────────────────────────────────────────── */
+function liveBar(el){
+  const {pi,ci,phi} = el.dataset;
+  const ph = getPh(pi,ci,+phi);
+  const lx = dFrom(CS,ph.start)*CPX;
+  const bw = (dFrom(ph.start,ph.end)+1)*CPX;
+  el.style.left  = lx+'px';
+  el.style.width = bw+'px';
+  const lbl = el.querySelector('.pbar-lbl');
+  if(lbl) lbl.textContent = bw>46 ? ph.name : '';
+}
+
+function liveSumBar(pi){
+  const proj = projects[pi];
+  const track = document.querySelector(`.parent-row[data-pi="${pi}"] .track`);
+  if(!track) return;
+  const old = track.querySelector('.sum-bar');
+  if(old) old.remove();
+  if(!proj.phases.length) return;
+  const minS=new Date(Math.min(...proj.phases.map(p=>+new Date(p.start))));
+  const maxE=new Date(Math.max(...proj.phases.map(p=>+new Date(p.end))));
+  const d = document.createElement('div');
+  d.className = 'sum-bar';
+  d.style.cssText=`left:${dFrom(CS,minS)*CPX}px;width:${(dFrom(minS,maxE)+1)*CPX}px;background:${proj.color}`;
+  track.appendChild(d);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BIND EVENTS
+───────────────────────────────────────────────────────────── */
+const dtip  = document.getElementById('dtip');
+const hcard = document.getElementById('hcard');
+
+function bindAll(){
+
+  /* toggle collapse */
+  document.querySelectorAll('.tog').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const pi=+btn.dataset.pi;
+      projects[pi].expanded = !projects[pi].expanded;
+      btn.classList.toggle('open', projects[pi].expanded);
+      const cw = document.getElementById(`cw${btn.dataset.id}`);
+      if(cw) cw.classList.toggle('closed', !projects[pi].expanded);
+    });
+  });
+
+  /* inline edit — parent */
+  document.querySelectorAll('.editable').forEach(el=>{
+    el.addEventListener('dblclick', ()=> startEdit(el));
+  });
+  /* inline edit — child */
+  document.querySelectorAll('.ech').forEach(el=>{
+    el.addEventListener('dblclick', ()=> startEditChild(el));
+  });
+
+  /* add phase — parent */
+  document.querySelectorAll('.ra.addph').forEach(btn=>{
+    btn.addEventListener('click',e=>{ e.stopPropagation(); addPhase(+btn.dataset.pi, null); });
+  });
+  /* add phase — child */
+  document.querySelectorAll('.ra.addchph').forEach(btn=>{
+    btn.addEventListener('click',e=>{ e.stopPropagation(); addPhase(+btn.dataset.pi, +btn.dataset.ci); });
+  });
+  /* add child */
+  document.querySelectorAll('.ra.addch').forEach(btn=>{
+    btn.addEventListener('click',e=>{ e.stopPropagation(); addChild(+btn.dataset.pi); });
+  });
+  /* color */
+  document.querySelectorAll('.ra.colorbtn').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const id = projects[+btn.dataset.pi].id;
+      const cp = document.getElementById(`cp${id}`);
+      const open = cp.style.display==='flex';
+      document.querySelectorAll('.cpop').forEach(c=>c.style.display='none');
+      if(!open) cp.style.display='flex';
+    });
+  });
+  document.querySelectorAll('.cdot').forEach(dot=>{
+    dot.addEventListener('click',e=>{
+      e.stopPropagation();
+      projects[+dot.dataset.pi].color = dot.dataset.color;
+      render();
+    });
+  });
+  /* delete project */
+  document.querySelectorAll('.ra.delpj').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(projects.length<=1) return;
+      projects.splice(+btn.dataset.pi,1);
+      render();
+    });
+  });
+  /* delete child */
+  document.querySelectorAll('.ra.delch').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      projects[+btn.dataset.pi].children.splice(+btn.dataset.ci,1);
+      render();
+    });
+  });
+
+  /* close popups on outside click */
+  document.addEventListener('click', closePopups, {capture:false});
+
+  /* right-click context menu */
+  document.querySelectorAll('.parent-row').forEach(row=>{
+    row.addEventListener('contextmenu',e=>{
+      e.preventDefault(); e.stopPropagation();
+      ctxTarget={pi:+row.dataset.pi};
+      openCtx(e.clientX,e.clientY);
+    });
+  });
+
+  /* phase bars */
+  document.querySelectorAll('.pbar').forEach(bar=>{
+    bar.addEventListener('mouseenter', e=>{ if(!activeDrag) showHCard(e,bar); });
+    bar.addEventListener('mousemove',  e=>{ if(!activeDrag) moveHCard(e); });
+    bar.addEventListener('mouseleave', ()=>{ hcard.style.display='none'; });
+    bar.addEventListener('mousedown',  e=>{
+      const act = e.target.dataset.act;
+      if(act==='rl'||act==='rr') startResize(e,bar,act);
+      else if(!e.target.classList.contains('rh')) startMove(e,bar);
+    });
+  });
+}
+
+let _boundClose = false;
+function closePopups(){
+  document.querySelectorAll('.cpop').forEach(c=>c.style.display='none');
+  closeCtx();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DRAG: MOVE & RESIZE
+───────────────────────────────────────────────────────────── */
+function startMove(e,bar){
+  e.preventDefault(); hcard.style.display='none';
+  const {pi,ci,phi}=bar.dataset;
+  const ph=getPh(pi,ci,+phi);
+  const oS=new Date(ph.start),oE=new Date(ph.end),dur=dFrom(oS,oE),ox=e.clientX;
+  bar.classList.add('dragging'); activeDrag=bar;
+
+  function mv(ev){
+    const dd=Math.round((ev.clientX-ox)/CPX);
+    let ns=addD(oS,dd);
+    if(ns<CS)ns=new Date(CS);
+    let ne=addD(ns,dur);
+    if(ne>CE){ne=new Date(CE);ns=addD(ne,-dur);}
+    setPh(pi,ci,+phi,{start:iso(ns),end:iso(ne)});
+    liveBar(bar);
+    if(ci==='') liveSumBar(+pi);
+    showDtip(ev,pi,ci,+phi);
+  }
+  function up(){
+    activeDrag=null; bar.classList.remove('dragging');
+    dtip.style.display='none';
+    document.removeEventListener('mousemove',mv);
+    document.removeEventListener('mouseup',up);
+  }
+  document.addEventListener('mousemove',mv);
+  document.addEventListener('mouseup',up);
+}
+
+function startResize(e,bar,act){
+  e.preventDefault(); e.stopPropagation(); hcard.style.display='none';
+  const {pi,ci,phi}=bar.dataset;
+  const ph=getPh(pi,ci,+phi);
+  const oS=new Date(ph.start),oE=new Date(ph.end),ox=e.clientX;
+  bar.classList.add('dragging'); activeDrag=bar;
+
+  function mv(ev){
+    const dd=Math.round((ev.clientX-ox)/CPX);
+    if(act==='rl'){
+      let ns=addD(oS,dd);
+      if(ns>=oE) ns=addD(oE,-1);
+      if(ns<CS)  ns=new Date(CS);
+      setPh(pi,ci,+phi,{start:iso(ns)});
+    } else {
+      let ne=addD(oE,dd);
+      if(ne<=oS) ne=new Date(oS);
+      if(ne>CE)  ne=new Date(CE);
+      setPh(pi,ci,+phi,{end:iso(ne)});
+    }
+    liveBar(bar);
+    if(ci==='') liveSumBar(+pi);
+    showDtip(ev,pi,ci,+phi);
+  }
+  function up(){
+    activeDrag=null; bar.classList.remove('dragging');
+    dtip.style.display='none';
+    document.removeEventListener('mousemove',mv);
+    document.removeEventListener('mouseup',up);
+  }
+  document.addEventListener('mousemove',mv);
+  document.addEventListener('mouseup',up);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOOLTIPS
+───────────────────────────────────────────────────────────── */
+function showDtip(e,pi,ci,phi){
+  const ph=getPh(pi,ci,phi);
+  dtip.textContent=`${ph.start}  ▶  ${ph.end}  ·  ${dFrom(ph.start,ph.end)+1} 天`;
+  dtip.style.display='block';
+  dtip.style.left=Math.min(e.clientX+14,window.innerWidth-220)+'px';
+  dtip.style.top=(e.clientY-38)+'px';
+}
+function showHCard(e,bar){
+  const {pi,ci,phi}=bar.dataset;
+  const ph=getPh(pi,ci,+phi);
+  const proj=projects[+pi];
+  const ctx = ci==='' ? proj.name : proj.children[+ci].name;
+  const dur = dFrom(ph.start,ph.end)+1;
+  const pg  = ph.progress||0;
+  hcard.innerHTML=`
+    <div class="hc-top">
+      <div class="hc-ic" style="background:${ph.color}"></div>
+      <div class="hc-nm">${ctx}</div>
+    </div>
+    <div class="hc-r"><span class="hc-k">階段</span><span class="hc-v">${ph.name}</span></div>
+    <div class="hc-r"><span class="hc-k">開始</span><span class="hc-v">${ph.start}</span></div>
+    <div class="hc-r"><span class="hc-k">結束</span><span class="hc-v">${ph.end}</span></div>
+    <div class="hc-r"><span class="hc-k">天數</span><span class="hc-v">${dur} 天</span></div>
+    <div class="hc-pg">
+      <div style="display:flex;justify-content:space-between">
+        <span class="hc-k">進度</span><span class="hc-v">${pg}%</span>
+      </div>
+      <div class="hc-pg-bar"><div class="hc-pg-fill" style="width:${pg}%;background:${ph.color}"></div></div>
+    </div>`;
+  hcard.style.display='block';
+  moveHCard(e);
+}
+function moveHCard(e){
+  hcard.style.left=Math.min(e.clientX+18,window.innerWidth-260)+'px';
+  hcard.style.top =Math.min(e.clientY-10, window.innerHeight-200)+'px';
+}
+
+/* ─────────────────────────────────────────────────────────────
+   INLINE EDIT
+───────────────────────────────────────────────────────────── */
+function startEdit(el){
+  if(el.querySelector('input')) return;
+  const pi=+el.dataset.pi, f=el.dataset.f;
+  const cur = f==='name' ? projects[pi].name : projects[pi].dept;
+  const inp = Object.assign(document.createElement('input'),{className:'ie'+(f==='dept'?' sm':''),value:cur});
+  el.textContent=''; el.appendChild(inp);
+  inp.focus(); inp.select();
+  const commit=()=>{ const v=inp.value.trim()||cur; if(f==='name')projects[pi].name=v; else projects[pi].dept=v; render(); };
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter')commit(); if(e.key==='Escape')render(); });
+}
+function startEditChild(el){
+  if(el.querySelector('input')) return;
+  const pi=+el.dataset.pi,ci=+el.dataset.ci;
+  const cur=projects[pi].children[ci].name;
+  const inp=Object.assign(document.createElement('input'),{className:'ie sm',value:cur});
+  el.textContent=''; el.appendChild(inp);
+  inp.focus(); inp.select();
+  const commit=()=>{ const v=inp.value.trim()||cur; projects[pi].children[ci].name=v; render(); };
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter')commit(); if(e.key==='Escape')render(); });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ADD PHASE / CHILD
+───────────────────────────────────────────────────────────── */
+function addPhase(pi, ci){
+  const phases = ci===null ? projects[pi].phases : projects[pi].children[ci].phases;
+  const last   = phases[phases.length-1];
+  const ns = last ? iso(addD(last.end,1)) : iso(NOW);
+  const ne = iso(addD(new Date(ns),13));
+  const cols=[projects[pi].color,'#7B6AE0','#B27A18','#0D9668','#D45E28','#1888A0'];
+  phases.push({id:uid(),name:`階段${phases.length+1}`,start:ns,end:ne,color:cols[phases.length%cols.length],progress:0});
+  render();
+}
+function addChild(pi){
+  projects[pi].expanded=true;
+  const c=projects[pi].color;
+  projects[pi].children.push({id:uid(),name:'新子項目',status:'planned',phases:[
+    {id:uid(),name:'一修',start:iso(NOW),end:iso(addD(NOW,13)),color:c,progress:0}
+  ]});
+  render();
+  setTimeout(()=>{
+    const all=document.querySelectorAll(`.ech[data-pi="${pi}"]`);
+    if(all.length) startEditChild(all[all.length-1]);
+  },60);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CONTEXT MENU
+───────────────────────────────────────────────────────────── */
+function openCtx(x,y){
+  const m=document.getElementById('ctx');
+  m.classList.add('open');
+  m.style.left=Math.min(x,window.innerWidth-175)+'px';
+  m.style.top =Math.min(y,window.innerHeight-230)+'px';
+}
+function closeCtx(){ document.getElementById('ctx').classList.remove('open'); }
+
+document.getElementById('cx-edit').onclick=()=>{
+  if(!ctxTarget) return; closeCtx();
+  const el=document.querySelector(`.row-name[data-pi="${ctxTarget.pi}"]`);
+  if(el) startEdit(el);
+};
+document.getElementById('cx-addph').onclick=()=>{
+  if(!ctxTarget) return; closeCtx(); addPhase(ctxTarget.pi,null);
+};
+document.getElementById('cx-addch').onclick=()=>{
+  if(!ctxTarget) return; closeCtx(); addChild(ctxTarget.pi);
+};
+document.getElementById('cx-color').onclick=()=>{
+  if(!ctxTarget) return; closeCtx();
+  const btn=document.querySelector(`.ra.colorbtn[data-pi="${ctxTarget.pi}"]`);
+  if(btn) btn.click();
+};
+document.getElementById('cx-status').onclick=()=>{
+  if(!ctxTarget) return; closeCtx();
+  const keys=Object.keys(SMAP), pi=ctxTarget.pi;
+  projects[pi].status=keys[(keys.indexOf(projects[pi].status)+1)%keys.length];
+  render();
+};
+document.getElementById('cx-del').onclick=()=>{
+  if(!ctxTarget||projects.length<=1) return; closeCtx();
+  projects.splice(ctxTarget.pi,1); render();
+};
+
+/* ─────────────────────────────────────────────────────────────
+   ADD PROJECT MODAL
+───────────────────────────────────────────────────────────── */
+(()=>{
+  const modal=document.getElementById('addModal');
+  const mpal =document.getElementById('mpal');
+  let selC   =PAL[0];
+
+  PAL.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='cdot'+(c===selC?' sel':'');
+    d.style.background=c;
+    d.onclick=()=>{ selC=c; mpal.querySelectorAll('.cdot').forEach(x=>x.classList.remove('sel')); d.classList.add('sel'); };
+    mpal.appendChild(d);
+  });
+
+  const open =()=>{ modal.classList.add('open'); document.getElementById('mn').focus(); };
+  const close=()=>{ modal.classList.remove('open'); };
+
+  document.getElementById('addProjBtn').onclick=open;
+  document.getElementById('mcancel').onclick=close;
+  modal.addEventListener('click',e=>{ if(e.target===modal)close(); });
+  document.getElementById('mok').onclick=()=>{
+    const name=document.getElementById('mn').value.trim()||'新專案';
+    const dept=document.getElementById('md').value.trim()||'未指定';
+    const status=document.getElementById('ms').value;
+    projects.push({id:uid(),name,dept,color:selC,status,expanded:true,
+      phases:[{id:uid(),name:'一修',start:iso(NOW),end:iso(addD(NOW,13)),color:selC,progress:0}],
+      children:[]});
+    document.getElementById('mn').value='';
+    document.getElementById('md').value='';
+    close(); render();
+    setTimeout(()=>document.getElementById('ganttScroll').scrollTo({top:9999,behavior:'smooth'}),80);
+  };
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   TOOLBAR ACTIONS
+───────────────────────────────────────────────────────────── */
+document.getElementById('expandAllBtn').onclick=()=>{ projects.forEach(p=>p.expanded=true); render(); };
+document.getElementById('collapseAllBtn').onclick=()=>{ projects.forEach(p=>p.expanded=false); render(); };
+document.getElementById('todayBtn').onclick=()=>{
+  const s=document.getElementById('ganttScroll');
+  s.scrollTo({left:Math.max(0,TODAY_X+300-window.innerWidth/2),behavior:'smooth'});
+};
+
+/* filter chips */
+document.getElementById('filterGroup').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-f]'); if(!btn)return;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  activeFilter=btn.dataset.f;
+  render();
+});
+
+/* ─────────────────────────────────────────────────────────────
+   THEME
+───────────────────────────────────────────────────────────── */
+const themeBtn=document.getElementById('themeBtn');
+themeBtn.onclick=()=>{
+  const h=document.documentElement;
+  const dark = h.dataset.theme!=='dark';
+  h.dataset.theme = dark?'dark':'light';
+  themeBtn.textContent = dark?'☽':'☀';
+};
+
+/* ─────────────────────────────────────────────────────────────
+   SHORTCUTS
+───────────────────────────────────────────────────────────── */
+const shud=document.getElementById('shud');
+document.getElementById('shortcutBtn').onclick=e=>{ e.stopPropagation(); shud.classList.toggle('show'); };
+document.addEventListener('click',()=>shud.classList.remove('show'));
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+  switch(e.key){
+    case 'n':case 'N': document.getElementById('addProjBtn').click(); break;
+    case 't':case 'T': document.getElementById('todayBtn').click(); break;
+    case 'd':case 'D': themeBtn.click(); break;
+    case 'e':case 'E': document.getElementById('expandAllBtn').click(); break;
+    case 'c':case 'C': document.getElementById('collapseAllBtn').click(); break;
+    case '?': shud.classList.toggle('show'); break;
+    case 'Escape':
+      shud.classList.remove('show');
+      document.querySelectorAll('.cpop').forEach(x=>x.style.display='none');
+      document.getElementById('addModal').classList.remove('open');
+      closeCtx(); break;
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────
+   EXPORT / SHARE
+───────────────────────────────────────────────────────────── */
+document.getElementById('exportBtn').onclick=()=>window.print();
+document.getElementById('shareBtn').onclick=()=>{
+  const b=document.getElementById('shareBtn');
+  navigator.clipboard.writeText(location.href).catch(()=>{});
+  b.textContent='✓ 已複製'; setTimeout(()=>b.textContent='↗ 分享連結',1600);
+};
+
+/* ─────────────────────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────────────────────── */
+render();
+// Auto-scroll to today
+setTimeout(()=>{
+  const s=document.getElementById('ganttScroll');
+  s.scrollLeft=Math.max(0,TODAY_X+300-window.innerWidth/2);
+},200);
+</script>
+</body>
+</html>
